@@ -107,7 +107,7 @@ public class ImageProcessor {
         return image;
     }
     
-    private getBufferedImageType(Mat matrix) {
+    private int getBufferedImageType(Mat matrix) {
         return matrix.channels() > 1
             ? Bufferedimage.TYPE_3BYTE_BGR
             : BufferedImage.TYPE_BYTE_GRAY;
