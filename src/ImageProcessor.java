@@ -13,9 +13,17 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import edu.wpi.first.wpilibj.networktables.*;
+
 public class ImageProcessor {
 	
+	
         public BufferedImage toBufferedImage(Mat matrix){
+        	
+        	NetworkTable.setClientMode();
+        	NetworkTable.setIPAddress("10.40.79.2");
+        	NetworkTable table = NetworkTable.getTable("raspCameraTest");
+        	
                 int type = BufferedImage.TYPE_BYTE_GRAY;
                 
                 if ( matrix.channels() > 1 ) {
@@ -48,18 +56,32 @@ public class ImageProcessor {
                 double secondGreatestArea = 0;
                 
                 ArrayList<MatOfPoint> contoursToDraw = new ArrayList<MatOfPoint>();
-                contoursToDraw.add(null);
-                contoursToDraw.add(null);
+                //contoursToDraw.add(null);
+                //contoursToDraw.add(null);
                 
-                while (each.hasNext()){
+                while (each.hasNext()) {
                 	//idx=idx+1;
                 	MatOfPoint contour = each.next();
                     	
                     if (Imgproc.contourArea(contour) >= greatestArea){
-                    	contoursToDraw.set(1, contoursToDraw.get(0));
-                		contoursToDraw.set(0, contour);
-                		secondGreatestArea = greatestArea; 
-                    	greatestArea = Imgproc.contourArea(contour);
+                    	if (contoursToDraw.size() == 2) {
+                    		contoursToDraw.set(1, contoursToDraw.get(0));
+                    		contoursToDraw.set(0, contour);
+                    		secondGreatestArea = greatestArea; 
+                    		greatestArea = Imgproc.contourArea(contour);
+                    	}
+                    	else if (contoursToDraw.size() == 1) {
+                    		contoursToDraw.add(contoursToDraw.get(0));
+                    		contoursToDraw.set(0, contour);
+                    		secondGreatestArea = greatestArea; 
+                    		greatestArea = Imgproc.contourArea(contour);
+                    	}
+                    	else if (contoursToDraw.size() == 0) {
+                    		contoursToDraw.add(contour);
+                    		secondGreatestArea = greatestArea; 
+                    		greatestArea = Imgproc.contourArea(contour);
+                    	}
+                    	
                     }
                     else if (Imgproc.contourArea(contour) <= greatestArea && Imgproc.contourArea(contour) >= secondGreatestArea)
                     {
@@ -75,16 +97,18 @@ public class ImageProcessor {
                 }
                 System.out.println("Greatest Area: " + greatestArea + "\nSecond Greatest Area: " + secondGreatestArea);
                 
-                for (int i = 0; i < contoursToDraw.size(); i++)
-                {
-                    Imgproc.drawContours(matrix, contoursToDraw, i, new Scalar(0,0,255));
-                    Moments moments = Imgproc.moments(contoursToDraw.get(i));
-                    Point centroid = new Point();
-                    centroid.x = moments.get_m10()/moments.get_m00();
-                    centroid.y = moments.get_m01()/moments.get_m00();
+                double sum = 0; 
+                for (int i = 0; i < contoursToDraw.size(); i++) {
+                		Imgproc.drawContours(matrix, contoursToDraw, i, new Scalar(0,0,255));
+                		Moments moments = Imgproc.moments(contoursToDraw.get(i));
+                		Point centroid = new Point();
+                		centroid.x = moments.get_m10()/moments.get_m00();
+                		centroid.y = moments.get_m01()/moments.get_m00();
                     
-                    System.out.printf("%8.2f %8.2f\n",centroid.x,centroid.y);
+                		System.out.printf("%8.2f %8.2f\n",centroid.x,centroid.y);
+                		sum += centroid.x;
                 }
+                table.putNumber("Center", sum/contoursToDraw.size());
                 //blankImg.copyTo(matrix);
 
                 int bufferSize = matrix.channels()*matrix.cols()*matrix.rows();

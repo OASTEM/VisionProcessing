@@ -12,5 +12,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Yasmin Veys/wpilib/java/current/lib/NetworkTables.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Yasmin Veys/wpilib/java/current/lib/NetworkTables-3.1.7-desktop.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Yasmin Veys/wpilib/java/current/lib/NetworkTables-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
