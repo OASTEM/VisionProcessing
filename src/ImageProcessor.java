@@ -42,10 +42,6 @@ public class ImageProcessor {
        // Scalar lower_bound = new Scalar(4,50,50); //blue
        // Scalar upper_bound = new Scalar(10,255,255); //blue
 
-        // I'm assuming these are RGB values - Peter
-        Scalar lower_bound = new Scalar(20, 10, 100);
-        Scalar upper_bound = new Scalar(110, 255, 255);
-
         // tbh no idea
         Mat mask = new Mat();
         Core.inRange(hsv, LOWER_BOUND, UPPER_BOUND, mask);
